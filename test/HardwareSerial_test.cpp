@@ -12,7 +12,7 @@ TEST_CASE("HardwareSerial()") {
   }
   
   SECTION("Constructor passes initial input") {
-    HardwareSerial port = HardwareSerial(5, (uint8_t*) "asdf");
+    HardwareSerial port = HardwareSerial((uint8_t*) "asdf", 5);
     
     REQUIRE(port.inputAvailable == 5);
     REQUIRE(memcmp(port.inputBuffer, "asdf", 5) == 0);
@@ -20,7 +20,7 @@ TEST_CASE("HardwareSerial()") {
   }
   
   SECTION("Initial input is truncated to 64 bytes") {
-    HardwareSerial port = HardwareSerial(65, (uint8_t*) "asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDF");
+    HardwareSerial port = HardwareSerial((uint8_t*) "asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDF", 65);
     
     REQUIRE(port.inputAvailable == 64);
     REQUIRE(memcmp(port.inputBuffer, "asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDF", 64) == 0);
@@ -32,29 +32,29 @@ TEST_CASE("HardwareSerial.addInput()") {
   HardwareSerial port = HardwareSerial();
   
   SECTION("Adding zero bytes does nothing") {
-    port.addInput(0, (uint8_t*) "foo");
+    port.addInput((uint8_t*) "foo", 0);
     
     REQUIRE(port.inputAvailable == 0);
   }
   
   SECTION("Adding bytes puts them in .inputBuffer") {
-    port.addInput(4, (uint8_t*) "foo");
+    port.addInput((uint8_t*) "foo", 4);
     
     REQUIRE(port.inputAvailable == 4);
     REQUIRE(memcmp(port.inputBuffer, "foo", 4) == 0);
   }
   
   SECTION("Adding more bytes appends to .inputBuffer") {
-    port.addInput(4, (uint8_t*) "foo");
-    port.addInput(4, (uint8_t*) "foo");
+    port.addInput((uint8_t*) "foo", 4);
+    port.addInput((uint8_t*) "foo", 4);
     
     REQUIRE(port.inputAvailable == 8);
     REQUIRE(memcmp(port.inputBuffer, "foo\0foo", 8) == 0);
   }
   
   SECTION("New bytes are ignored after .inputBuffer is full") {
-    port.addInput(10, (uint8_t*) "1234567890");
-    port.addInput(65, (uint8_t*) "asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDF");
+    port.addInput((uint8_t*) "1234567890", 10);
+    port.addInput((uint8_t*) "asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDF", 65);
     
     REQUIRE(port.inputAvailable == 64);
     REQUIRE(memcmp(port.inputBuffer, "1234567890asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfAS", 64) == 0);
@@ -69,26 +69,26 @@ TEST_CASE("HardwareSerial.available()") {
   }
   
   SECTION("Constucting with initial input makes it available") {
-    HardwareSerial port_2 = HardwareSerial(4, (uint8_t*) "asdf");
+    HardwareSerial port_2 = HardwareSerial((uint8_t*) "asdf", 4);
     
     REQUIRE(port_2.available() == 4);
   }
   
   SECTION("Adding bytes makes them available") {
-    port.addInput(4, (uint8_t*) "asdf");
+    port.addInput((uint8_t*) "asdf", 4);
     
     REQUIRE(port.available() == 4);
   }
   
   SECTION("Adding bytes successively makes them available") {
-    port.addInput(4, (uint8_t*) "asdf");
-    port.addInput(4, (uint8_t*) "asdf");
+    port.addInput((uint8_t*) "asdf", 4);
+    port.addInput((uint8_t*) "asdf", 4);
     
     REQUIRE(port.available() == 8);
   }
   
   SECTION("Reading bytes makes them not available any more") {
-    port.addInput(4, (uint8_t*) "asdf");
+    port.addInput((uint8_t*) "asdf", 4);
     
     port.read();
     
@@ -96,7 +96,7 @@ TEST_CASE("HardwareSerial.available()") {
   }
   
   SECTION("Reading bytes successively makes them not available any more") {
-    port.addInput(4, (uint8_t*) "asdf");
+    port.addInput((uint8_t*) "asdf", 4);
     
     port.read();
     port.read();
@@ -112,7 +112,7 @@ TEST_CASE("HardwareSerial.available()") {
 }
 
 TEST_CASE("HardwareSerial.read()") {
-  HardwareSerial port = HardwareSerial(4, (uint8_t*) "1337");
+  HardwareSerial port = HardwareSerial((uint8_t*) "1337", 4);
   
   SECTION("Reading an empty port returns -1") {
     HardwareSerial port_2 = HardwareSerial();

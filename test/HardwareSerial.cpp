@@ -5,14 +5,14 @@ HardwareSerial::HardwareSerial() {
   outputAvailable = 0;
 }
 
-HardwareSerial::HardwareSerial(uint32_t size, uint8_t payload[]) {
+HardwareSerial::HardwareSerial(uint8_t payload[], uint32_t size) {
   inputAvailable = 0;
   outputAvailable = 0;
   
-  addInput(size, payload);
+  addInput(payload, size);
 }
 
-void HardwareSerial::addInput(uint32_t size, uint8_t payload[]) {
+void HardwareSerial::addInput(uint8_t payload[], uint32_t size) {
   uint32_t size_accepted = size < 64 - inputAvailable ? size : 64 - inputAvailable;
   
   for(uint32_t i = 0; i < size_accepted; ++i) {

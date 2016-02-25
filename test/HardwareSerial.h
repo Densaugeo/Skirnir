@@ -18,12 +18,12 @@ class HardwareSerial {
     
     // Additional API for testing
     HardwareSerial();
-    HardwareSerial(uint32_t size, uint8_t payload[]); // Same as calling constructor and then .addInput()
+    HardwareSerial(uint8_t payload[], uint32_t size); // Same as calling constructor and then .addInput()
     uint8_t inputBuffer[64];
     uint32_t inputAvailable;
     uint8_t outputBuffer[64];
     uint32_t outputAvailable;
-    void addInput(uint32_t size, uint8_t payload[]);
+    void addInput(uint8_t payload[], uint32_t size);
 };
 
 #endif // ifndef
