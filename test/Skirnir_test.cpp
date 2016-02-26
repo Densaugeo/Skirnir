@@ -3,8 +3,6 @@
 
 #include "Skirnir.hpp"
 
-#include "base64.hpp"
-
 TEST_CASE("Skirnir.heartbeat()") {
   SECTION("Sends \"<\\n\"") {
     HardwareSerial port = HardwareSerial();
