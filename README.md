@@ -1,5 +1,9 @@
 # Skirnir
+
 Link Arduino to Nodejs, reliably
+
+[![License: LGPL](https://img.shields.io/badge/license-LGPL-blue.svg)](http://www.gnu.org/licenses/lgpl-3.0.en.html)
+[![Build Status](https://travis-ci.org/Densaugeo/Skirnir.svg?branch=master)](https://travis-ci.org/Densaugeo/Skirnir)
 
 ## Installation
 
