@@ -8,7 +8,17 @@
 
 class Skirnir {
   private:
+    enum FSMState {
+      START,
+      PING,
+      PACKET_INTERMEDIATE,
+      PACKET_END,
+    };
+    
     HardwareSerial* port;
+    uint8_t receive_buffer[61];
+    FSMState fsm_state;
+    int fsm_repeats;
   
   public:
     /* Skirnir:
@@ -43,7 +53,7 @@ class Skirnir {
      *     payload - Bytes to send
      *     size - Size of payload. If size is more that 45, only 45 bytes will be sent
      */
-    void send(unsigned char payload[], unsigned int size);
+    void send(uint8_t payload[], uint32_t size);
     
     /* receive:
      *   Description:
@@ -54,7 +64,7 @@ class Skirnir {
      *   Returns:
      *     true if a packet was detected
      */
-    bool receive(unsigned char payload[], unsigned char next);
+    bool receive(uint8_t payload[], uint8_t next);
     
     /* receive_until_packet:
      *   Description:
@@ -64,7 +74,7 @@ class Skirnir {
      *   Returns:
      *     true if a packet was detected
      */
-    bool receive_until_packet(unsigned char payload[]);
+    bool receive_until_packet(uint8_t payload[]);
 };
 
 #endif // ifndef

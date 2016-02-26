@@ -1,37 +1,30 @@
 #include "Skirnir.hpp"
 #include "base64.hpp"
 
-#define START 0
-#define PING_I 1
-#define PACKET_START 2
-#define PACKET_END 3
-
-unsigned char packet[66];
-int packet_cursor;
-int state = START;
-
 Skirnir::Skirnir(HardwareSerial* port_) {
   port = port_;
+  fsm_state = START;
+  receive_buffer[60] = '\0';
 }
 
 void Skirnir::heartbeat() {
   port -> write("<\n");
 }
 
-void Skirnir::send45(unsigned char payload[]) {
-  unsigned char packet[63];
+void Skirnir::send45(uint8_t payload[]) {
+  uint8_t send_buffer[63];
   
-  packet[0] = '#';
-  encode_base64(payload, 45, packet + 1);
-  packet[61] = '\n';
-  packet[62] = '\0';
+  send_buffer[0] = '#';
+  encode_base64(payload, 45, send_buffer + 1);
+  send_buffer[61] = '\n';
+  send_buffer[62] = '\0';
   
-  port -> write((char*) packet);
+  port -> write((char*) send_buffer);
 }
 
-void Skirnir::send(unsigned char payload[], unsigned int size) {
+void Skirnir::send(uint8_t payload[], uint32_t size) {
   int actual_size = size < 45 ? size : 45;
-  unsigned char padded_payload[45];
+  uint8_t padded_payload[45];
   
   for(int i = 0; i < actual_size; ++i) {
     padded_payload[i] = payload[i];
@@ -44,34 +37,33 @@ void Skirnir::send(unsigned char payload[], unsigned int size) {
   send45(padded_payload);
 }
 
-bool Skirnir::receive(unsigned char payload[], unsigned char next) {
+bool Skirnir::receive(uint8_t payload[], uint8_t next) {
   switch(next) {
     case '-':
-      state = PING_I;
+      fsm_state = PING;
       break;
     case '#':
-      for(int i = 0; i < 66; ++i) {
-        packet[i] = '\0';
-      }
-      packet_cursor = 0;
-      state = PACKET_START;
+      fsm_state = PACKET_INTERMEDIATE;
+      fsm_repeats = 0;
       break;
     default:
-      switch(state) {
-        case PING_I:
+      switch(fsm_state) {
+        case PING:
           if(next == '\n') port -> write(">\n");
-          state = START;
+          fsm_state = START;
           break;
-        case PACKET_START:
-          packet[packet_cursor++] = next;
-          if(packet_cursor >= 60) state = PACKET_END;
+        case PACKET_INTERMEDIATE:
+          receive_buffer[fsm_repeats] = next;
+          if(++fsm_repeats >= 60) fsm_state = PACKET_END;
           break;
         case PACKET_END:
-          state = START;
+          fsm_state = START;
           if(next == '\n') {
-            decode_base64(packet, payload);
+            decode_base64(receive_buffer, payload);
             return true;
           }
+          break;
+        default:
           break;
       }
   }
@@ -79,11 +71,9 @@ bool Skirnir::receive(unsigned char payload[], unsigned char next) {
   return false;
 }
 
-bool Skirnir::receive_until_packet(unsigned char payload[]) {
+bool Skirnir::receive_until_packet(uint8_t payload[]) {
   while(port -> available()) {
-    char next = port -> read();
-    
-    if(receive(payload, next)) {
+    if(receive(payload, port -> read())) {
       return true;
     }
   }
