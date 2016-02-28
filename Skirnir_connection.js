@@ -35,7 +35,7 @@ var heartbeat = new function() {
       return active;
     },
     set: function(v) {
-      if(active != v) {
+      if(active !== v) {
         active = Boolean(v);
         process.send({type: active ? 'open' : 'close'}, function(err) {
           if(err) {
@@ -55,7 +55,7 @@ process.on('message', function(message) {
     throw new Error('Message too large to send, must be 45 bytes or less');
   }
   
-  var base64 = Buffer(message.data).toString('base64');
+  var base64 = new Buffer(message.data).toString('base64');
   
   // Pad to 60 bytes because serial packets must all be the same size
   while(base64.length < 60) {
@@ -87,7 +87,7 @@ reader.on('data', function(data) {
     
     // If packet is a valid message packet...
     if(serial_packet[0] === '#' && serial_packet.length === 62 && serial_packet[61] === '\n') {
-      process.send(Buffer(serial_packet.substring(1, 61), 'base64'), function(err) {
+      process.send(new Buffer(serial_packet.substring(1, 61), 'base64'), function(err) {
         if(err !== null) {
           console.log('Error trying to send to parent process:');
           console.log(err);

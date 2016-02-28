@@ -1,32 +1,33 @@
 var Skirnir = require('../Skirnir.js');
 
-var serially = new Skirnir();
+var skirnir = new Skirnir();
 
-serially.autoConnect('/dev', function(err) {
+skirnir.autoConnect('/dev', function(err) {
   if(err) {
     console.log('Error scanning /dev: ' + err);
   }
 });
 
-var last_message = '';
-
-serially.on('new', function(e) {
+skirnir.on('new', function(e) {
   console.log('Added new serial device: ' + e.device);
 });
 
-serially.on('message', function(e) {
+skirnir.on('message', function(e) {
   console.log('Received buffer:');
-  console.log(Buffer(e.data));
+  console.log(new Buffer(e.data));
 });
 
-serially.on('open', function(e) {
+skirnir.on('open', function(e) {
   console.log('Opened device ' + e.device + '. Currect connections are:');
-  for(var i in serially.connections) console.log(i);
+  
+  for(var i in skirnir.connections) {
+    console.log(i);
+  }
 });
 
-serially.on('close', function(e) {
+skirnir.on('close', function(e) {
   console.log('Closed device ' + e.device + '. Currect connections are:');
-  console.log(serially.connections);
+  console.log(skirnir.connections);
 });
 
 var getRandomBuffer = function(length) {
@@ -36,17 +37,19 @@ var getRandomBuffer = function(length) {
     result.push(Math.floor(Math.random()*256));
   }
   
-  return Buffer(result);
+  return new Buffer(result);
 }
 
 setInterval(function() {
   var message_bin = getRandomBuffer(45);
   
-  for(var i in serially.connections) {
+  for(var i in skirnir.connections) {
     console.log('Sending buffer:');
     console.log(message_bin);
-    serially.connections[i].send(message_bin);
+    skirnir.connections[i].send(message_bin);
   }
 }, 1000);
 
 var cli = require('repl').start({});
+cli.context.Skirnir = Skirnir;
+cli.context.skirnir = skirnir;
