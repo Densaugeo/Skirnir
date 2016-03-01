@@ -1,17 +1,41 @@
 # Skirnir
 
-Link Arduino to Nodejs, reliably
+Link Arduino to Nodejs, reliably. Can automatically connect to devices in a given folder and detect new devices. Linux-only, since it manages serial settings through stty.
 
 [![License: LGPL](https://img.shields.io/badge/license-LGPL-blue.svg)](http://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![Build Status](https://travis-ci.org/Densaugeo/Skirnir.svg?branch=master)](https://travis-ci.org/Densaugeo/Skirnir)
 
 ## Installation
 
+#### Nodejs
+
+Run `npm install git://github.com/Densaugeo/Skirnir.git` or add git://github.com/Densaugeo/Skirnir.git to your package.json dependencies.
+
 #### Arduino
 
 Add contents of src/ to your project folder and `#include "Skirnir.hpp" in your main .cpp file.
 
 ## Usage
+
+#### Nodejs
+
+Minimal code to automatically connect to any device found in /dev, send [1, 2, 3], and log any response (messages will be padded with zeroes, because Skirnir packets always carry 45 bytes of data):
+
+~~~
+var Skirnir = require('skirnir');
+
+var skirnir = new Skirnir({dir: '/dev', autoscan: true, autoadd: true});
+
+setInterval(function() {
+  for(var i in skirnir.connections) {
+    skirnir.connections[i].send(new Buffer([1, 2, 3]));
+  }
+}, 1000);
+
+skirnir.on('message', function(e) {
+  console.log(new Buffer(e.data));
+});
+~~~
 
 #### Arduino
 

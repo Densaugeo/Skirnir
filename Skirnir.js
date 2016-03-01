@@ -1,33 +1,60 @@
+/**
+ * @description JS interface for Skirnir. Configures serial ports and carries packets
+ */
 var cp = require('child_process');
 var EventEmitter = require('events');
 var fs = require('fs');
 var path = require('path');
 var util = require('util');
 
-// Skirnir({dir: String})
+/**
+ * @module Skirnir inherits EventEmitter
+ * @description Manages a folder of serial ports
+ * 
+ * @example var Skirnir = require('../Skirnir.js');
+ * @example var skirnir = new Skirnir({dir: '/dev', autoscan: true, autoadd: true});
+ * @example
+ * @example skirnir.on('add', console.log('Added device: ' + e.device)});
+ * @example skirnir.on('connect', console.log('Connected to device: ' + e.device)});
+ * @example skirnir.on('disconnect', console.log('Disconnected from device: ' + e.device)});
+ * @example skirnir.on('remove', console.log('Removed device: ' + e.device)});
+ * @example skirnir.on('error', function(e) {console.log(e.error)});
+ * @example
+ * @example skirnir.on('message', function(e) {
+ * @example   console.log('Received message from ' + e.device + ':');
+ * @example   console.log(e.data.toString());
+ * @example });
+ * @example
+ * @example for(var i in skirnir.connections) {
+ * @example   skirnir.connections[i].send(new Buffer([1, 2, 3, 4])); // Send [1, 2, 3, 4] to all connected devices
+ * @example }
+ */
 var Skirnir = function(args) {
+  var self = this;
+  
+  EventEmitter.call(this);
+  
   if(typeof args.dir !== 'string') {
     throw new Error('Error at Skirnir(): args.dir must have type \'string\'');
   }
   
-  var self = this;
+  // @prop String dir -- Directory to look for ports in. Read-only
+  // @option String dir -- Sets .dir
+  Object.defineProperty(this, 'dir', {value: args.dir, enumerable: true});
   
-  EventEmitter.call(this);
+  // @prop Boolean autoscan -- If true, scans search directory every 5000ms
+  // @option Boolean autoscan -- Sets .autoscan
+  this.autoscan = Boolean(args.autoscan);
+  
+  // @prop Boolean autoadd -- If true, automatically adds devices found in scans
+  // @option Boolean autoadd -- Sets .autoadd
+  this.autoadd = Boolean(args.autoadd);
   
   // @prop {ChildProcess} devices -- Available TTY ports, indexed by port name
   this.devices = {};
   
   // @prop {ChildProcess} connections -- TTY ports with active Skirnir heartbeats, indexed by port name
   this.connections = {};
-  
-  // @prop String dir -- Directory to look for ports in
-  Object.defineProperty(this, 'dir', {value: args.dir, enumerable: true});
-  
-  // @prop Boolean autoscan -- If true, scans search directory every 5000ms
-  this.autoscan = Boolean(args.autoscan);
-  
-  // @prop Boolean autoadd -- If true, automatically adds devices found in scans
-  this.autoadd = Boolean(args.autoadd);
   
   setInterval(function() {
     if(args.autoscan) {
@@ -50,7 +77,8 @@ var Skirnir = function(args) {
 }
 util.inherits(Skirnir, EventEmitter);
 
-// @method undefined connect(String name, ChildProcess process) -- Emit a connect event and add port to .connections
+// @method proto undefined connect(String name) -- Emit a connect event and add port to .connections
+// @event connect {device: String} -- Notice of a connection, fired when a heartbeat is detected
 Skirnir.prototype.connect = function(name) {
   if(this.connections[name] === undefined) {
     this.connections[name] = this.devices[name];
@@ -58,7 +86,8 @@ Skirnir.prototype.connect = function(name) {
   }
 }
 
-// @method undefined disconnect(String name) -- Emit a disconnect event and remove port from .connections
+// @method proto undefined disconnect(String name) -- Emit a disconnect event and remove port from .connections
+// @event disconnect {device: String} -- Notice of a disconnection, fired when heartbeat times out (7000ms)
 Skirnir.prototype.disconnect = function(name) {
   if(this.connections[name] !== undefined) {
     delete this.connections[name];
@@ -66,7 +95,10 @@ Skirnir.prototype.disconnect = function(name) {
   }
 }
 
-// @method undefined add(String device) -- Spawn a child process that connects to the given port. Child is added to .devices
+// @method proto undefined add(String device) -- Spawn a child process that connects to the given port. Child is added to .devices
+// @event add {device: String} -- Notice of adding a new device, fired when a new device is added
+// @event remove {device: String} -- Notice of removing a device, fired when a device's io streams break
+// @event message {data: [Number], device: String} -- Fired when a valid Skirnir packet is received. Always contains 45 bytes
 Skirnir.prototype.add = function(device) {
   var serial_child = cp.fork('./Skirnir_connection.js', [path.join(this.dir, device)]);
   this.devices[device] = serial_child;
@@ -89,8 +121,10 @@ Skirnir.prototype.add = function(device) {
   });
 }
 
-// @method undefined scan(Function cb) -- Scan a directory for new ttyUSB or ttyACM devices. cb is called with cb([String] devices_names)
-Skirnir.prototype.scan = function(cb) {
+// @method proto undefined scan() -- Scan a directory for new ttyUSB or ttyACM devices. Emits scan and error events
+// @event error {call: String, error: Error} -- Notice of error. .call gives the name of the method of origin
+// @event scan {found: [String]} -- Fired every time .scan is called, including autoscans. Lists new devices found by filename
+Skirnir.prototype.scan = function() {
   var self = this;
   
   fs.readdir(this.dir, function(error, files) {
