@@ -15,13 +15,17 @@ serial_settings.forEach(function(v) {
   var stty_result = cp.spawnSync('stty', ['--file=' + device, v]);
   
   if(stty_result.error) {
-    console.log('Error configuring serial port ' + device + '. Make sure stty is installed.');
+    console.log('Error: could not call stty for ' + device + '. Make sure stty is installed.');
     process.exit(1);
   }
   
   if(stty_result.stderr.length > 0) {
-    console.log('Error configuring serial port ' + device + ': ' + stty_result.stderr.toString());
-    process.exit(1);
+    console.log('Warning: \'stty --file=' + device + ' ' + v + '\' failed: ' + stty_result.stderr.toString());
+    
+    if(v === 'sane') {
+      console.log('Error: cannot proceed without stty sane');
+      process.exit(1);
+    }
   }
 });
 
