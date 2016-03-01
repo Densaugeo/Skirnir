@@ -41,7 +41,7 @@ var heartbeat = new function() {
     set: function(v) {
       if(active !== v) {
         active = Boolean(v);
-        process.send({type: active ? 'open' : 'close'}, function(err) {
+        process.send({type: active ? 'connect' : 'disconnect'}, function(err) {
           if(err) {
             console.log('This may be that random IPC error:');
             console.log(err);

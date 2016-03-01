@@ -1,15 +1,35 @@
 var Skirnir = require('../Skirnir.js');
 
-var skirnir = new Skirnir();
+var skirnir = new Skirnir({dir: '/dev', autoscan: true, autoadd: true});
 
-skirnir.autoConnect('/dev', function(err) {
-  if(err) {
-    console.log('Error scanning /dev: ' + err);
+function list_keys(object) {
+  for(var i in object) {
+    console.log(i);
   }
+}
+
+skirnir.on('add', function(e) {
+  console.log('Added new serial device: ' + e.device + '. Currect devices are:');
+  
+  list_keys(skirnir.devices);
 });
 
-skirnir.on('new', function(e) {
-  console.log('Added new serial device: ' + e.device);
+skirnir.on('remove', function(e) {
+  console.log('Removed serial device: ' + e.device + '. Currect devices are:');
+  
+  list_keys(skirnir.devices);
+});
+
+skirnir.on('connect', function(e) {
+  console.log('Connected device ' + e.device + '. Currect connections are:');
+  
+  list_keys(skirnir.connections);
+});
+
+skirnir.on('disconnect', function(e) {
+  console.log('Disconnected device ' + e.device + '. Currect connections are:');
+  
+  list_keys(skirnir.connections);
 });
 
 skirnir.on('message', function(e) {
@@ -17,17 +37,8 @@ skirnir.on('message', function(e) {
   console.log(new Buffer(e.data));
 });
 
-skirnir.on('open', function(e) {
-  console.log('Opened device ' + e.device + '. Currect connections are:');
-  
-  for(var i in skirnir.connections) {
-    console.log(i);
-  }
-});
-
-skirnir.on('close', function(e) {
-  console.log('Closed device ' + e.device + '. Currect connections are:');
-  console.log(skirnir.connections);
+skirnir.on('error', function(e) {
+  console.log('Error event from ' + e.call + ': ' + e.error);
 });
 
 var getRandomBuffer = function(length) {
