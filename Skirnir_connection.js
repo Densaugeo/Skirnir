@@ -33,7 +33,7 @@ serial_settings.forEach(function(v) {
 var reader = fs.createReadStream(device);
 var writer = fs.createWriteStream(device);
 
-var heartbeat = new function() {
+var Heartbeat = function() {
   var active = false;
   Object.defineProperty(this, 'active', {
     get: function() {
@@ -54,6 +54,7 @@ var heartbeat = new function() {
   
   this.timer = {};
 }
+var heartbeat = new Heartbeat();
 
 process.on('message', function(message) {
   if(message.data.length > 45) {
