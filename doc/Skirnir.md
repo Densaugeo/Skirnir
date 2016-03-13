@@ -38,6 +38,8 @@ for(var i in skirnir.connections) {
 
 `Boolean` **autoscan** -- Sets .autoscan
 
+`Number` **baud** -- Sets .baud
+
 `String` **dir** -- Sets .dir
 
 #### Properties
@@ -45,6 +47,8 @@ for(var i in skirnir.connections) {
 `Boolean` **autoadd** -- If true, automatically adds devices found in scans
 
 `Boolean` **autoscan** -- If true, scans search directory every 5000ms
+
+`Number` **baud** -- Baud rate for all serial connections. Defaults to 9600. Read-only
 
 `{ChildProcess}` **connections** -- TTY ports with active Skirnir heartbeats, indexed by port name
 

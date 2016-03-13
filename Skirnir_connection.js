@@ -2,6 +2,7 @@ var fs = require('fs');
 var cp = require('child_process');
 
 var device = process.argv[2];
+var baud = process.argv[3];
 
 // Serial settings
 
@@ -9,7 +10,7 @@ var device = process.argv[2];
 // Turns echo off on serial port - they echo the Arduino's output back to itself
 // -icrnl and -onlcr to keep \n as just \n
 
-var serial_settings = ['sane', '-echo', '-echoe', '-echok', '-echoctl', '-echoke', '-icrnl', '-onlcr'];
+var serial_settings = ['sane', baud, '-echo', '-echoe', '-echok', '-echoctl', '-echoke', '-icrnl', '-onlcr'];
 
 serial_settings.forEach(function(v) {
   var stty_result = cp.spawnSync('stty', ['--file=' + device, v]);

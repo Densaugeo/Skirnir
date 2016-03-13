@@ -42,6 +42,10 @@ var Skirnir = function(args) {
   // @option String dir -- Sets .dir
   Object.defineProperty(this, 'dir', {value: args.dir, enumerable: true});
   
+  // @prop Number baud -- Baud rate for all serial connections. Defaults to 9600. Read-only
+  // @option Number baud -- Sets .baud
+  Object.defineProperty(this, 'baud', {value: args.baud || 9600, enumerable: true});
+  
   // @prop Boolean autoscan -- If true, scans search directory every 5000ms
   // @option Boolean autoscan -- Sets .autoscan
   this.autoscan = Boolean(args.autoscan);
@@ -100,7 +104,7 @@ Skirnir.prototype.disconnect = function(name) {
 // @event remove {device: String} -- Notice of removing a device, fired when a device's io streams break
 // @event message {data: [Number], device: String} -- Fired when a valid Skirnir packet is received. Always contains 45 bytes
 Skirnir.prototype.add = function(device) {
-  var serial_child = cp.fork('./Skirnir_connection.js', [path.join(this.dir, device)]);
+  var serial_child = cp.fork('./Skirnir_connection.js', [path.join(this.dir, device), this.baud]);
   this.devices[device] = serial_child;
   this.emit('add', {device: device});
   
