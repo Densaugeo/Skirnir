@@ -104,7 +104,7 @@ Skirnir.prototype.disconnect = function(name) {
 // @event remove {device: String} -- Notice of removing a device, fired when a device's io streams break
 // @event message {data: [Number], device: String} -- Fired when a valid Skirnir packet is received. Always contains 45 bytes
 Skirnir.prototype.add = function(device) {
-  var serial_child = cp.fork('./Skirnir_connection.js', [path.join(this.dir, device), this.baud]);
+  var serial_child = cp.fork(__dirname + '/Skirnir_connection.js', [path.join(this.dir, device), this.baud]);
   this.devices[device] = serial_child;
   this.emit('add', {device: device});
   
