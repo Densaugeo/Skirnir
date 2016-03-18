@@ -54,11 +54,9 @@ var getRandomBuffer = function(length) {
 setInterval(function() {
   var message_bin = getRandomBuffer(45);
   
-  for(var i in skirnir.connections) {
-    console.log('Sending buffer:');
-    console.log(message_bin);
-    skirnir.connections[i].send(message_bin);
-  }
+  console.log('Sending buffer:');
+  console.log(message_bin);
+  skirnir.broadcast(message_bin);
 }, 1000);
 
 var cli = require('repl').start({});

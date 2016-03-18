@@ -157,4 +157,11 @@ Skirnir.prototype.scan = function() {
   });
 }
 
+// @method proto undefined broadcast(Buffer packet) -- Send a packet to all connected ports
+Skirnir.prototype.broadcast = function(packet) {
+  for(var i in this.connections) {
+    this.connections[i].send(packet);
+  }
+}
+
 module.exports = Skirnir;

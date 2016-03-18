@@ -60,6 +60,8 @@ for(var i in skirnir.connections) {
 
 `undefined` proto **add**`(String device)` -- Spawn a child process that connects to the given port. Child is added to .devices
 
+`undefined` proto **broadcast**`(Buffer packet)` -- Send a packet to all connected ports
+
 `undefined` proto **connect**`(String name)` -- Emit a connect event and add port to .connections
 
 `undefined` proto **disconnect**`(String name)` -- Emit a disconnect event and remove port from .connections
