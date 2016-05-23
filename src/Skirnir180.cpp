@@ -47,8 +47,6 @@ bool Skirnir180::fsmGlobals(uint8_t payload[], uint8_t next, uint8_t input_buffe
     default:
       return Skirnir::fsmGlobals(payload, next, input_buffer);
   }
-  
-  return false;
 }
 
 uint8_t Skirnir180::fsmLocals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]) {
@@ -56,19 +54,17 @@ uint8_t Skirnir180::fsmLocals(uint8_t payload[], uint8_t next, uint8_t input_buf
     case LPACKET_INTERMEDIATE:
       input_buffer[fsm_repeats] = next;
       if(++fsm_repeats >= 240) fsm_state = LPACKET_END;
-      break;
+      return 0;
     case LPACKET_END:
       fsm_state = START;
       if(next == '\n') {
         decode_base64(input_buffer, payload);
         return 180;
       }
-      break;
+      return 0;
     default:
       return Skirnir::fsmLocals(payload, next, input_buffer);
   }
-  
-  return 0;
 }
 
 uint8_t Skirnir180::receive(uint8_t payload[], uint8_t next) {

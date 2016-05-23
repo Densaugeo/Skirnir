@@ -59,23 +59,21 @@ uint8_t Skirnir::fsmLocals(uint8_t payload[], uint8_t next, uint8_t input_buffer
     case PING:
       if(next == '\n') port -> write(">\n");
       fsm_state = START;
-      break;
+      return 0;
     case PACKET_INTERMEDIATE:
       input_buffer[fsm_repeats] = next;
       if(++fsm_repeats >= 60) fsm_state = PACKET_END;
-      break;
+      return 0;
     case PACKET_END:
       fsm_state = START;
       if(next == '\n') {
         decode_base64(input_buffer, payload);
         return 45;
       }
-      break;
+      return 0;
     default:
-      break;
+      return 0;
   }
-  
-  return 0;
 }
 
 uint8_t Skirnir::receive(uint8_t payload[], uint8_t next) {

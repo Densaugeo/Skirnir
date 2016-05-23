@@ -69,7 +69,9 @@ process.on('message', function(message) {
     base64 += 'A';
   }
   
-  writer.write((message.data.length <= 45 ? '#' : '&') + base64 + '\n', 'utf-8');
+  var prefix = message.data.length <= 45 ? '#' : '&';
+  
+  writer.write(prefix + base64 + '\n', 'utf-8');
 });
 
 reader.on('data', function(data) {
@@ -93,15 +95,15 @@ reader.on('data', function(data) {
     var serial_packet = data.toString();
     
     // If packet is a valid message packet...
-    if(serial_packet[0] === '#' && serial_packet.length === 62 && serial_packet[61] === '\n') {
-      process.send(new Buffer(serial_packet.substring(1, 61), 'base64'), function(err) {
-        if(err !== null) {
-          console.log('Error trying to send to parent process:');
-          console.log(err);
-        }
-      });
-    } else if (serial_packet[0] === '&' && serial_packet.length === 242 && serial_packet[241] === '\n') {
-      process.send(new Buffer(serial_packet.substring(1, 241), 'base64'), function(err) {
+    var expected_length = 0;
+    switch(serial_packet[0]) {
+      case '#': expected_length = 62 ; break;
+      case '&': expected_length = 242; break;
+      default: return;
+    }
+    
+    if(serial_packet.length === expected_length && serial_packet[expected_length - 1] === '\n') {
+      process.send(new Buffer(serial_packet.substring(1, expected_length - 1), 'base64'), function(err) {
         if(err !== null) {
           console.log('Error trying to send to parent process:');
           console.log(err);
