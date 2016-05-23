@@ -64,7 +64,7 @@ var Skirnir = function(args) {
     if(args.autoscan) {
       self.scan();
     }
-  }, 5000);
+  }, 2000);
   
   // Try to prevent dangling child processes. This should be refactored to not use children
   var cleanup = function() {

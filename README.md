@@ -59,8 +59,8 @@ void loop() {
     last_ping = 0;
   }
   
-  // Start heartbeat every 5s
-  if(millis() > last_ping + 5000) {
+  // Start heartbeat every 2s
+  if(millis() > last_ping + 2000) {
     last_ping = millis();
     
     a_skirnir.heartbeat();
