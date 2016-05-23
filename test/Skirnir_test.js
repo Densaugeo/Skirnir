@@ -1,41 +1,47 @@
 var Skirnir = require('../Skirnir.js');
+var colors = require('colors');
 
 var skirnir = new Skirnir({dir: '/dev', autoscan: true, autoadd: true, baud: 115200});
 
 function list_keys(object) {
   for(var i in object) {
-    console.log(i);
+    console.log(i.green);
   }
+  
+  console.log();
 }
 
 skirnir.on('add', function(e) {
-  console.log('Added new serial device: ' + e.device + '. Currect devices are:');
+  console.log('Added'.green + ' new serial device: ' + e.device.green + '. Currect devices are:');
   
   list_keys(skirnir.devices);
 });
 
 skirnir.on('remove', function(e) {
-  console.log('Removed serial device: ' + e.device + '. Currect devices are:');
+  console.log('Removed'.red + ' serial device: ' + e.device.green + '. Currect devices are:');
   
   list_keys(skirnir.devices);
 });
 
 skirnir.on('connect', function(e) {
-  console.log('Connected device ' + e.device + '. Currect connections are:');
+  console.log('Connected'.green + ' device ' + e.device.green + '. Currect connections are:');
   
   list_keys(skirnir.connections);
 });
 
 skirnir.on('disconnect', function(e) {
-  console.log('Disconnected device ' + e.device + '. Currect connections are:');
+  console.log('Disconnected'.red + ' device ' + e.device.green + '. Currect connections are:');
   
   list_keys(skirnir.connections);
 });
 
 skirnir.on('message', function(e) {
-  console.log('Received buffer:');
+  console.log('Received '.yellow + String(e.data.length).magenta + ' byte buffer:'.yellow);
   console.log(new Buffer(e.data));
-  console.log('Equal to last buffer sent: ' + new Buffer(e.data).equals(message_bin));
+  
+  var equal = new Buffer(e.data).equals(message_bin)
+  
+  console.log('Equal to last buffer sent: ' + (equal ? 'true'.green : 'false'.red) + '\n');
 });
 
 skirnir.on('error', function(e) {
@@ -53,14 +59,18 @@ var getRandomBuffer = function(length) {
 }
 
 var message_bin;
+var message_size = 45;
 
 setInterval(function() {
-  message_bin = getRandomBuffer(180);
+  message_bin = getRandomBuffer(message_size);
   
-  console.log('Sending buffer:');
+  console.log('Sending '.yellow + String(message_size).magenta + ' byte buffer:'.yellow);
   console.log(message_bin);
+  console.log();
   skirnir.broadcast(message_bin);
-}, 1000);
+  
+  message_size = message_size === 45 ? 180 : 45;
+}, 1500);
 
 var cli = require('repl').start({});
 cli.context.Skirnir = Skirnir;
