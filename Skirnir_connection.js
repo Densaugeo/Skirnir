@@ -57,18 +57,19 @@ var Heartbeat = function() {
 var heartbeat = new Heartbeat();
 
 process.on('message', function(message) {
-  if(message.data.length > 45) {
-    throw new Error('Message too large to send, must be 45 bytes or less');
+  if(message.data.length > 180) {
+    throw new Error('Message too large to send, must be 180 bytes or less');
   }
   
   var base64 = new Buffer(message.data).toString('base64');
+  var base64_size = message.data.length <= 45 ? 60 : 240;
   
   // Pad to 60 bytes because serial packets must all be the same size
-  while(base64.length < 60) {
-    base64 += '=';
+  while(base64.length < base64_size) {
+    base64 += 'A';
   }
   
-  writer.write('#' + base64 + '\n', 'utf-8');
+  writer.write((message.data.length <= 45 ? '#' : '&') + base64 + '\n', 'utf-8');
 });
 
 reader.on('data', function(data) {
@@ -94,6 +95,13 @@ reader.on('data', function(data) {
     // If packet is a valid message packet...
     if(serial_packet[0] === '#' && serial_packet.length === 62 && serial_packet[61] === '\n') {
       process.send(new Buffer(serial_packet.substring(1, 61), 'base64'), function(err) {
+        if(err !== null) {
+          console.log('Error trying to send to parent process:');
+          console.log(err);
+        }
+      });
+    } else if (serial_packet[0] === '&' && serial_packet.length === 242 && serial_packet[241] === '\n') {
+      process.send(new Buffer(serial_packet.substring(1, 241), 'base64'), function(err) {
         if(err !== null) {
           console.log('Error trying to send to parent process:');
           console.log(err);

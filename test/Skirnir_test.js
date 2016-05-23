@@ -1,6 +1,6 @@
 var Skirnir = require('../Skirnir.js');
 
-var skirnir = new Skirnir({dir: '/dev', autoscan: true, autoadd: true});
+var skirnir = new Skirnir({dir: '/dev', autoscan: true, autoadd: true, baud: 115200});
 
 function list_keys(object) {
   for(var i in object) {
@@ -35,6 +35,7 @@ skirnir.on('disconnect', function(e) {
 skirnir.on('message', function(e) {
   console.log('Received buffer:');
   console.log(new Buffer(e.data));
+  console.log('Equal to last buffer sent: ' + new Buffer(e.data).equals(message_bin));
 });
 
 skirnir.on('error', function(e) {
@@ -51,8 +52,10 @@ var getRandomBuffer = function(length) {
   return new Buffer(result);
 }
 
+var message_bin;
+
 setInterval(function() {
-  var message_bin = getRandomBuffer(45);
+  message_bin = getRandomBuffer(180);
   
   console.log('Sending buffer:');
   console.log(message_bin);
