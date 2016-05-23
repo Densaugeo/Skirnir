@@ -8,17 +8,25 @@
 
 class Skirnir {
   private:
+    uint8_t receive_buffer[61];
+  
+  protected:
     enum FSMState {
       START,
       PING,
       PACKET_INTERMEDIATE,
       PACKET_END,
+      LPACKET_INTERMEDIATE,
+      LPACKET_END
     };
     
     HardwareSerial* port;
-    uint8_t receive_buffer[61];
     FSMState fsm_state;
     int fsm_repeats;
+    
+    bool fsmGlobals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]);
+    uint8_t fsmLocals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]);
+    
   
   public:
     /* Skirnir:
@@ -64,7 +72,7 @@ class Skirnir {
      *   Returns:
      *     true if a packet was detected
      */
-    bool receive(uint8_t payload[], uint8_t next);
+    uint8_t receive(uint8_t payload[], uint8_t next);
     
     /* receive_until_packet:
      *   Description:
@@ -74,7 +82,7 @@ class Skirnir {
      *   Returns:
      *     true if a packet was detected
      */
-    bool receive_until_packet(uint8_t payload[]);
+    uint8_t receive_until_packet(uint8_t payload[]);
 };
 
 #endif // ifndef
