@@ -24,14 +24,34 @@ class Skirnir {
     FSMState fsm_state;
     int fsm_repeats;
     
+    /* fsmGlobals:
+     *   Description:
+     *     First stage of FSM used by receive()
+     *   Parameters:
+     *     payload - Array to store a packet, if received
+     *     next - The character to receive
+     *     input_buffer - Refernce to receive_buffer. Must be passed in because child classes use different receive_buffers
+     *   Returns:
+     *     true if next character triggered a global transition
+     */
     bool fsmGlobals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]);
-    uint8_t fsmLocals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]);
     
+    /* fsmLocals:
+     *   Description:
+     *     Second stage of FSM used by receive()
+     *   Parameters:
+     *     payload - Array to store a packet, if received
+     *     next - The character to receive
+     *     input_buffer - Refernce to receive_buffer. Must be passed in because child classes use different receive_buffers
+     *   Returns:
+     *     if a packet was completed, size in bytes (always 45). Otherwise, zero
+     */
+    uint8_t fsmLocals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]);
   
   public:
     /* Skirnir:
      *   Description:
-     *     Skirnirs must be given a HardwareSerial reference when constructed
+     *     Sends and receives 45-byte packets over an Arduino-compatible HardwareSerial port
      *   Parameters:
      *     port - Reference to an Arduino-style HardwareSerial
      *   Returns:
@@ -48,7 +68,7 @@ class Skirnir {
     
     /* send45:
      *   Description:
-     *     Sends a fixed-size 45-byte packet. Lower overhead than .send()
+     *     Sends a fixed-size 45-byte packet
      *   Parameters:
      *     payload - Bytes to send. The 45 bytes after this pointer are sent
      */
@@ -56,10 +76,10 @@ class Skirnir {
     
     /* send:
      *   Description:
-     *     Sends a packet, with a payload of up to 45 bytes. Convenience wrapper for .send45()
+     *     Sends a packet, with a payload of up to 45 bytes
      *   Parameters:
      *     payload - Bytes to send
-     *     size - Size of payload. If size is more that 45, only 45 bytes will be sent
+     *     size - Size of payload. If size is more than 45, the first 45 bytes will be sent
      */
     void send(uint8_t payload[], uint32_t size);
     
@@ -70,7 +90,7 @@ class Skirnir {
      *     payload - Array to store a packet, if received
      *     next - The character to receive
      *   Returns:
-     *     true if a packet was detected
+     *     if a packet was detected, size in bytes (always 45). Otherwise, zero
      */
     uint8_t receive(uint8_t payload[], uint8_t next);
     
@@ -80,7 +100,7 @@ class Skirnir {
      *   Parameters:
      *     payload - Array to store a packet, if received
      *   Returns:
-     *     true if a packet was detected
+     *     if a packet was detected, size in bytes (always 45). Otherwise, zero
      */
     uint8_t receive_until_packet(uint8_t payload[]);
 };
