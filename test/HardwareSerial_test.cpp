@@ -19,11 +19,11 @@ TEST_CASE("HardwareSerial()") {
     REQUIRE(port.outputAvailable == 0);
   }
   
-  SECTION("Initial input is truncated to 64 bytes") {
-    HardwareSerial port = HardwareSerial((uint8_t*) "asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDF", 65);
+  SECTION("Initial input is truncated to 300 bytes") {
+    HardwareSerial port = HardwareSerial((uint8_t*) "E&TvMT2HKbBUcF!rm;B1om$fuLQQtMr<Z$[zs|n]#faTyq;cyHFDO,:o7*V3vF#.M(KxVPBYMJ{4kIL];%rxR;eu9p-dyyBH-#[i?hU!G4L1[k#t*^*u2p{)3)wW01YDBuOf3)tGFKevPWw<<x* nzJzo7Z$ |$^Ek3NbZ!k@I,ee%zL[+--`=u^M59L=paB.{h#8cNd13/$5xj9/W@WzXW&V -R6&W@hBuA{m=)=916B;kAuAItI]yOZ3YJ1czN4F`X75AOczh}`)@jtLjr<.[9dki;*0$>I 5JHYXi+&KE*t*Bj2ut9D", 310);
     
-    REQUIRE(port.inputAvailable == 64);
-    REQUIRE(memcmp(port.inputBuffer, "asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDF", 64) == 0);
+    REQUIRE(port.inputAvailable == 300);
+    REQUIRE(memcmp(port.inputBuffer, "E&TvMT2HKbBUcF!rm;B1om$fuLQQtMr<Z$[zs|n]#faTyq;cyHFDO,:o7*V3vF#.M(KxVPBYMJ{4kIL];%rxR;eu9p-dyyBH-#[i?hU!G4L1[k#t*^*u2p{)3)wW01YDBuOf3)tGFKevPWw<<x* nzJzo7Z$ |$^Ek3NbZ!k@I,ee%zL[+--`=u^M59L=paB.{h#8cNd13/$5xj9/W@WzXW&V -R6&W@hBuA{m=)=916B;kAuAItI]yOZ3YJ1czN4F`X75AOczh}`)@jtLjr<.[9dki;*0$>I 5JHYXi+&KE", 300) == 0);
     REQUIRE(port.outputAvailable == 0);
   }
 }
@@ -53,11 +53,10 @@ TEST_CASE("HardwareSerial.addInput()") {
   }
   
   SECTION("New bytes are ignored after .inputBuffer is full") {
-    port.addInput((uint8_t*) "1234567890", 10);
-    port.addInput((uint8_t*) "asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDF", 65);
+    port.addInput((uint8_t*) "P*6FDzB<WR [*R%r1NdfVCmASpGW-cd&w;GA< Y@h2Pt/WJj{`wbBT2cWu:tJr]u]6U,ro|?*&39X0P0<`:-%rEm3uxq]0!Y:V`HCbFltG]`dN'HvNOz-Dhmgt6VfX,TZE?{)]A1k/^BgE&p-DQ0$(446[XwdD8q@R2%|)}l#Y>j3]#2=T* ]wrsvr+U@g&}{t]8lJ6JD&eE@Xf@VY}apyY`N`gBCD(iSGgVaOnvSf,_qh[?!sgAla<f{fk0V/wgszcT2}4e.`5^%8+p6S'jA1BprTUx0WtBFT{bq-_nG2LWZ[!0o(DQvt", 310);
     
-    REQUIRE(port.inputAvailable == 64);
-    REQUIRE(memcmp(port.inputBuffer, "1234567890asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfAS", 64) == 0);
+    REQUIRE(port.inputAvailable == 300);
+    REQUIRE(memcmp(port.inputBuffer, "P*6FDzB<WR [*R%r1NdfVCmASpGW-cd&w;GA< Y@h2Pt/WJj{`wbBT2cWu:tJr]u]6U,ro|?*&39X0P0<`:-%rEm3uxq]0!Y:V`HCbFltG]`dN'HvNOz-Dhmgt6VfX,TZE?{)]A1k/^BgE&p-DQ0$(446[XwdD8q@R2%|)}l#Y>j3]#2=T* ]wrsvr+U@g&}{t]8lJ6JD&eE@Xf@VY}apyY`N`gBCD(iSGgVaOnvSf,_qh[?!sgAla<f{fk0V/wgszcT2}4e.`5^%8+p6S'jA1BprTUx0WtBFT{bq-_nG2LW", 300) == 0);
   }
 }
 
@@ -164,14 +163,14 @@ TEST_CASE("HardwareSerial.write()") {
   }
   
   SECTION("Writing bytes to a full buffer does nothing") {
-    port.outputAvailable = 64;
-    memcpy(port.outputBuffer, (uint8_t*) "1234567890asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfAS", 64);
+    port.outputAvailable = 300;
+    memcpy(port.outputBuffer, (uint8_t*) "12", 2);
     
     port.write('!');
     port.write('@');
     
-    REQUIRE(port.outputAvailable == 64);
-    REQUIRE(memcmp(port.outputBuffer, "1234567890asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfAS", 2) == 0);
+    REQUIRE(port.outputAvailable == 300);
+    REQUIRE(memcmp(port.outputBuffer, "12", 2) == 0);
   }
   
   SECTION("Writing a string puts several bytes in .outputBuffer") {
@@ -190,10 +189,9 @@ TEST_CASE("HardwareSerial.write()") {
   }
   
   SECTION("Long strings are truncated when .outputBuffer is full") {
-    REQUIRE(port.write("1234567890") == 10);
-    REQUIRE(port.write("asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDF") == 54);
+    REQUIRE(port.write(";j(VUGRP*YUFbD,}T:9q]uX:,T#p'@5IeJ[G<;ICIS'z[2351 Nojw8.4Bq)WD/EsC/7.@I??Uw)s3b1A`krP$+8jV@ F!(suG:rA%tgBujnc@PTpS2$[+%xYOc+}(F:6nZ(/Kj}Jo^FU2*u=:4''hxw+G|O8*lB<@?( NKEdtjB$MI9w9]dpf}(QY?JMHmCCp3DT+nk6H,aE@%>0dySnEzEKw<]tt`mfZBMCLA]oU8T,hjYb=4w&,Io:8<:UBY+%)@I!d4O;)I3{w]Q2)$,>s(;Z=Mjoin+}qIP]jBjhq[sP%}S7^cmcS") == 300);
     
-    REQUIRE(port.outputAvailable == 64);
-    REQUIRE(memcmp(port.outputBuffer, "1234567890asdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfASDFasdfAS", 64) == 0);
+    REQUIRE(port.outputAvailable == 300);
+    REQUIRE(memcmp(port.outputBuffer, ";j(VUGRP*YUFbD,}T:9q]uX:,T#p'@5IeJ[G<;ICIS'z[2351 Nojw8.4Bq)WD/EsC/7.@I??Uw)s3b1A`krP$+8jV@ F!(suG:rA%tgBujnc@PTpS2$[+%xYOc+}(F:6nZ(/Kj}Jo^FU2*u=:4''hxw+G|O8*lB<@?( NKEdtjB$MI9w9]dpf}(QY?JMHmCCp3DT+nk6H,aE@%>0dySnEzEKw<]tt`mfZBMCLA]oU8T,hjYb=4w&,Io:8<:UBY+%)@I!d4O;)I3{w]Q2)$,>s(;Z=Mjoin+}qIP]jBjhq[s", 300) == 0);
   }
 }

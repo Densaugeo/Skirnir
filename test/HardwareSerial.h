@@ -8,6 +8,9 @@
 #include <cstddef>
 #include <cstdint>
 
+#define HARDWARESERIAL_INPUT_SIZE 300
+#define HARDWARESERIAL_OUTPUT_SIZE 300
+
 class HardwareSerial {
   public:
     // From Arduino HardwareSerial
@@ -19,9 +22,9 @@ class HardwareSerial {
     // Additional API for testing
     HardwareSerial();
     HardwareSerial(uint8_t payload[], uint32_t size); // Same as calling constructor and then .addInput()
-    uint8_t inputBuffer[64];
+    uint8_t inputBuffer[HARDWARESERIAL_INPUT_SIZE];
     uint32_t inputAvailable;
-    uint8_t outputBuffer[64];
+    uint8_t outputBuffer[HARDWARESERIAL_OUTPUT_SIZE];
     uint32_t outputAvailable;
     void addInput(uint8_t payload[], uint32_t size);
 };

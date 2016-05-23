@@ -13,7 +13,7 @@ HardwareSerial::HardwareSerial(uint8_t payload[], uint32_t size) {
 }
 
 void HardwareSerial::addInput(uint8_t payload[], uint32_t size) {
-  uint32_t size_accepted = size < 64 - inputAvailable ? size : 64 - inputAvailable;
+  uint32_t size_accepted = size < HARDWARESERIAL_INPUT_SIZE - inputAvailable ? size : HARDWARESERIAL_INPUT_SIZE - inputAvailable;
   
   for(uint32_t i = 0; i < size_accepted; ++i) {
     inputBuffer[inputAvailable + i] = payload[i];
@@ -43,7 +43,7 @@ int HardwareSerial::read() {
 }
 
 size_t HardwareSerial::write(uint8_t c) {
-  if(outputAvailable < 64) {
+  if(outputAvailable < HARDWARESERIAL_OUTPUT_SIZE) {
     outputBuffer[outputAvailable] = c;
     ++outputAvailable;
     
@@ -56,7 +56,7 @@ size_t HardwareSerial::write(uint8_t c) {
 size_t HardwareSerial::write(const char s[]) {
   size_t written = 0;
   
-  while(outputAvailable < 64 && s[written] != '\0') {
+  while(outputAvailable < HARDWARESERIAL_OUTPUT_SIZE && s[written] != '\0') {
     outputBuffer[outputAvailable] = (uint8_t) s[written];
     ++outputAvailable;
     ++written;
