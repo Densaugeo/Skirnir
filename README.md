@@ -74,6 +74,10 @@ void loop() {
 }
 ~~~
 
+#### Larger packets
+
+Normally, Skirnir sends data in 45-byte packets, and ignores extra data if trying to .send() more than 45 bytes. The Skirnir180 class works the same as Skirnir, but is also able to send 180-byte packets, at the cost of a couple hundred bytes of memory. Skirnir180::send() will still send smaller payloads in the same 45-byte packets as Skirnir::send().
+
 ## License
 
 LGPL
