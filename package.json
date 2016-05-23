@@ -1,6 +1,6 @@
 {
   "name": "skirnir",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Link Arduino to Nodejs, reliably",
   "keywords": [
     "serial",
