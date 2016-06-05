@@ -91,7 +91,7 @@ reader.on('data', function(data) {
         }, 7000);
         break;
     }
-  } else {
+  } else if(heartbeat.active) {
     var serial_packet = data.toString();
     
     // If packet is a valid message packet...
