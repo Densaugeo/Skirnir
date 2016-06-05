@@ -102,7 +102,7 @@ class Skirnir {
      *   Returns:
      *     if a packet was detected, size in bytes (always 45). Otherwise, zero
      */
-    uint8_t receive(uint8_t payload[], uint8_t next);
+    virtual uint8_t receive(uint8_t payload[], uint8_t next);
     
     /* receive_until_packet:
      *   Description:
@@ -112,7 +112,7 @@ class Skirnir {
      *   Returns:
      *     if a packet was detected, size in bytes (always 45). Otherwise, zero
      */
-    uint8_t receive_until_packet(uint8_t payload[]);
+    virtual uint8_t receive_until_packet(uint8_t payload[]);
 };
 
 #endif // ifndef
