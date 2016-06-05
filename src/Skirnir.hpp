@@ -51,7 +51,8 @@ class Skirnir {
   public:
     /* Skirnir:
      *   Description:
-     *     Sends and receives 45-byte packets over an Arduino-compatible HardwareSerial port
+     *     Sends and receives 45-byte packets over an Arduino-compatible HardwareSerial port. Can send 180-byte packets,
+     *     but can only receive 45-byte packets
      *   Parameters:
      *     port - Reference to an Arduino-style HardwareSerial
      *   Returns:
@@ -74,12 +75,21 @@ class Skirnir {
      */
     void send45(uint8_t payload[]);
     
+    /* send180:
+     *   Description:
+     *     Sends a fixed-size 180-byte packet
+     *   Parameters:
+     *     payload - Bytes to send. The 180 bytes after this pointer are sent
+     */
+    void send180(uint8_t payload[]);
+    
     /* send:
      *   Description:
-     *     Sends a packet, with a payload of up to 45 bytes
+     *     Sends a packet, with a payload of up to 180 bytes
+     *     Smaller payloads are sent in 45-byte packets, larger ones in 180-byte packets
      *   Parameters:
      *     payload - Bytes to send
-     *     size - Size of payload. If size is more than 45, the first 45 bytes will be sent
+     *     size - Size of payload. If size is more than 180, the first 180 bytes will be sent
      */
     void send(uint8_t payload[], uint32_t size);
     

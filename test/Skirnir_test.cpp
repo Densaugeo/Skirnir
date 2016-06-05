@@ -76,11 +76,25 @@ TEST_CASE("Skirnir.send()") {
     REQUIRE(memcmp(port.outputBuffer, "#QSN1XmdkZTVZSC5eIzU2NVJ1O0lbX0hHUGg6O3BqZjdyNF4hLixoWysrPWVp\n", 62) == 0);
   }
   
-  SECTION("Sending a >45 byte payload sends the first 45 bytes") {
+  SECTION("Sending between 45 and 180 bytes sends a large packet padded to 180 bytes") {
     skirnir.send((uint8_t*) "A#u^gde5YH.^#565Ru;I[_HGPh:;pjf7r4^!.,h[++=ei h@~~;.vjsd&we3", 60);
     
-    REQUIRE(port.outputAvailable == 62);
-    REQUIRE(memcmp(port.outputBuffer, "#QSN1XmdkZTVZSC5eIzU2NVJ1O0lbX0hHUGg6O3BqZjdyNF4hLixoWysrPWVp\n", 62) == 0);
+    REQUIRE(port.outputAvailable == 242);
+    REQUIRE(memcmp(port.outputBuffer, "&QSN1XmdkZTVZSC5eIzU2NVJ1O0lbX0hHUGg6O3BqZjdyNF4hLixoWysrPWVpIGhAfn47LnZqc2Qmd2UzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n", 242) == 0);
+  }
+  
+  SECTION("Sending a 180 byte payload sends exactly the full payload in a large packet") {
+    skirnir.send((uint8_t*) ".^f;T6?@p{f,&^6!vZ( OW+CyWQV#1-]T4k'L!<8Skwc4a%-b&-'0)X4_96!?:>t<]):^lLTa.fh9gBxl,.H_qIt^Q{hi^Q<][Effg+b3w4ol4F6fUiKDqA./+i(l&RP!c7wdp#a%R(l_#AD)}fQL}|S@B9)oUw #U-]fCe(b%V(6:bl$zX(", 180);
+    
+    REQUIRE(port.outputAvailable == 242);
+    REQUIRE(memcmp(port.outputBuffer, "&Ll5mO1Q2P0Bwe2YsJl42IXZaKCBPVytDeVdRViMxLV1UNGsnTCE8OFNrd2M0YSUtYiYtJzApWDRfOTYhPzo+dDxdKTpebExUYS5maDlnQnhsLC5IX3FJdF5Re2hpXlE8XVtFZmZnK2IzdzRvbDRGNmZVaUtEcUEuLytpKGwmUlAhYzd3ZHAjYSVSKGxfI0FEKX1mUUx9fFNAQjkpb1V3ICNVLV1mQ2UoYiVWKDY6Ymwkelgo\n", 242) == 0);
+  }
+  
+  SECTION("Sending a >180 byte payload sends the first 180 bytes in a large packet") {
+    skirnir.send((uint8_t*) ":!?b0];_@R2jsCPg$Onuo-VG{K]cR7fQZx##N>&EiU<h*+K'S?c5m6nCfGn2myELx'y>}<]OH6PTm>3.&Fj#]:aEN%@s^W`x`BnqDi|TH5m00_]YDd{AS0dMq9q#3K3w]w:t5_uc1u8c>--*^.>EPps?,`wIa/UKZCx$^9I#xm-aD]4YEYi[bX#-zX@r?u", 190);
+    
+    REQUIRE(port.outputAvailable == 242);
+    REQUIRE(memcmp(port.outputBuffer, "&OiE/YjBdO19AUjJqc0NQZyRPbnVvLVZHe0tdY1I3ZlFaeCMjTj4mRWlVPGgqK0snUz9jNW02bkNmR24ybXlFTHgneT59PF1PSDZQVG0+My4mRmojXTphRU4lQHNeV2B4YEJucURpfFRINW0wMF9dWURke0FTMGRNcTlxIzNLM3dddzp0NV91YzF1OGM+LS0qXi4+RVBwcz8sYHdJYS9VS1pDeCReOUkjeG0tYURdNFlFWWlb\n", 242) == 0);
   }
 }
 
