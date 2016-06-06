@@ -45,7 +45,7 @@ The following minimal code can maintain a connection and echo received packets b
 #include "Skirnir.hpp"
 
 unsigned char packet_decoded[45];
-unsigned long last_ping = 0;
+uint16_t last_ping = 0;
 
 Skirnir a_skirnir = Skirnir(&Serial);
 
@@ -54,15 +54,10 @@ void setup() {
 }
 
 void loop() {
-  // Check timer for overflow
-  if(millis() < last_ping) {
-    last_ping = 0;
-  }
-  
   // Start heartbeat every 2s
-  if(millis() > last_ping + 2000) {
+  if(2000 < (uint16_t) millis() - last_ping) {
     last_ping = millis();
-    
+
     a_skirnir.heartbeat();
   }
   
