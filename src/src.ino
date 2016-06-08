@@ -19,7 +19,7 @@ void loop() {
   }
 
   // Returns true if a valid packet is found
-  switch(a_skirnir.receive_until_packet()) {
+  switch(a_skirnir.receiveUntilPacket()) {
     // Echo packet back to PC
     case 45:
       a_skirnir.send(a_skirnir.receiveBuffer, 45);

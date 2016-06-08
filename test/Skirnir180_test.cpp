@@ -36,7 +36,7 @@ TEST_CASE("Skirnir180.receive()") {
     REQUIRE(skirnir.receive('1') == 0);
     
     port.addInput((uint8_t*) "jVXJPRW1QWHFPJGlGJzdOZlRvMUhxI0h1YFtWeTZdQ15bUVlrKHpbI", 54);
-    REQUIRE(skirnir.receive_until_packet() == 0);
+    REQUIRE(skirnir.receiveUntilPacket() == 0);
     
     REQUIRE(skirnir.receive('y') == 0);
     REQUIRE(skirnir.receive('R') == 0);
@@ -54,16 +54,16 @@ TEST_CASE("Skirnir180.receive()") {
     REQUIRE(skirnir.receive('Y') == 0);
     
     port.addInput((uint8_t*) "9KXkqQlp0UidfanVDbFFdQzowLG43OllVYH0wP1F5I15FVk92PWxdMipa", 57);
-    REQUIRE(skirnir.receive_until_packet() == 0);
+    REQUIRE(skirnir.receiveUntilPacket() == 0);
     
     port.addInput((uint8_t*) "RGdiZ3ZFQF1eVl80R24+J2I9SFk1N3F3cVJ0a2Ugeyl7Pks4SFgyIFMyZTEz", 60);
-    REQUIRE(skirnir.receive_until_packet() == 0);
+    REQUIRE(skirnir.receiveUntilPacket() == 0);
     
     port.addInput((uint8_t*) "KGt4RUxGTXdIOnpTd09lbiZAe1tZaSNZNDZHOn1DJi4kcyk8e289PmhdbFQs", 60);
-    REQUIRE(skirnir.receive_until_packet() == 0);
+    REQUIRE(skirnir.receiveUntilPacket() == 0);
     
     port.addInput((uint8_t*) "JDJvclQ1VGM0KDZALmJzLjc8ajBscG49U156eU1dUyR7O1JVLXp5bFUhW", 57);
-    REQUIRE(skirnir.receive_until_packet() == 0);
+    REQUIRE(skirnir.receiveUntilPacket() == 0);
     
     REQUIRE(skirnir.receive('X') == 0);
     REQUIRE(skirnir.receive('c') == 0);

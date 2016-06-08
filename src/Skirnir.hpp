@@ -9,7 +9,7 @@
 class Skirnir {
   private:
     // Where raw packets are stored as they come in, and where finished packets are put when they are found
-    uint8_t receive_buffer[61];
+    uint8_t receiveBufferPrivate[61];
   
   protected:
     enum FSMState {
@@ -22,8 +22,8 @@ class Skirnir {
     };
     
     HardwareSerial* port;
-    FSMState fsm_state;
-    int fsm_repeats;
+    FSMState fsmState;
+    int fsmRepeats;
     
     /* fsmGlobals:
      *   Description:
@@ -45,8 +45,8 @@ class Skirnir {
      */
     virtual uint8_t fsmLocals(uint8_t next);
     
-    // Publicly accessible pointer to the receive buffer
-    virtual uint8_t* getReceiveBuffer() { return receive_buffer; }
+    // Get pointer to correct receive buffer
+    virtual uint8_t* getReceiveBuffer() { return receiveBufferPrivate; }
   
   public:
     // Publicly accessible pointer to the receive buffer
@@ -84,7 +84,7 @@ class Skirnir {
      *   Description:
      *     Recieves a character. Responds to heartbeats and receives packets, if detected. If a packet is found,
      *     it is parsed and left in .receiveBuffer. Received packets are overwritten by .receive() and
-     *     .receive_until_packet()
+     *     .receiveUntilPacket()
      *   Parameters:
      *     next - The character to receive
      *   Returns:
@@ -92,15 +92,15 @@ class Skirnir {
      */
     uint8_t receive(uint8_t next);
     
-    /* receive_until_packet:
+    /* receiveUntilPacket:
      *   Description:
      *     Recieves from port.read() until a packet is detected or input ends. Responds to heartbeats, if detected.
      *     If a packet is found, it is parsed and left in .receiveBuffer. Received packets are overwritten by
-     *     .receive() and .receive_until_packet()
+     *     .receive() and .receiveUntilPacket()
      *   Returns:
      *     if a packet was detected, size in bytes (always 45). Otherwise, zero
      */
-    uint8_t receive_until_packet();
+    uint8_t receiveUntilPacket();
 };
 
 #endif // ifndef

@@ -3,7 +3,7 @@
 
 Skirnir180::Skirnir180(HardwareSerial* port_) : Skirnir(port) {
   port = port_;
-  fsm_state = START;
+  fsmState = START;
   receive_buffer[240] = '\0';
   receiveBuffer = getReceiveBuffer();
 }
@@ -11,8 +11,8 @@ Skirnir180::Skirnir180(HardwareSerial* port_) : Skirnir(port) {
 bool Skirnir180::fsmGlobals(uint8_t next) {
   switch(next) {
     case '&':
-      fsm_state = LPACKET_INTERMEDIATE;
-      fsm_repeats = 0;
+      fsmState = LPACKET_INTERMEDIATE;
+      fsmRepeats = 0;
       return true;
     default:
       return Skirnir::fsmGlobals(next);
@@ -20,13 +20,13 @@ bool Skirnir180::fsmGlobals(uint8_t next) {
 }
 
 uint8_t Skirnir180::fsmLocals(uint8_t next) {
-  switch(fsm_state) {
+  switch(fsmState) {
     case LPACKET_INTERMEDIATE:
-      getReceiveBuffer()[fsm_repeats] = next;
-      if(++fsm_repeats >= 240) fsm_state = LPACKET_END;
+      getReceiveBuffer()[fsmRepeats] = next;
+      if(++fsmRepeats >= 240) fsmState = LPACKET_END;
       return 0;
     case LPACKET_END:
-      fsm_state = START;
+      fsmState = START;
       if(next == '\n') {
         decode_base64(getReceiveBuffer(), getReceiveBuffer());
         return 180;

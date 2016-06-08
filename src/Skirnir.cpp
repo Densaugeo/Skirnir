@@ -3,7 +3,7 @@
 
 Skirnir::Skirnir(HardwareSerial* port_) {
   port = port_;
-  fsm_state = START;
+  fsmState = START;
   receiveBuffer = getReceiveBuffer();
 }
 
@@ -48,11 +48,11 @@ void Skirnir::send(uint8_t payload[], uint32_t size) {
 bool Skirnir::fsmGlobals(uint8_t next) {
   switch(next) {
     case '-':
-      fsm_state = PING;
+      fsmState = PING;
       return true;
     case '#':
-      fsm_state = PACKET_INTERMEDIATE;
-      fsm_repeats = 0;
+      fsmState = PACKET_INTERMEDIATE;
+      fsmRepeats = 0;
       getReceiveBuffer()[60] = '\0';
       return true;
     default:
@@ -61,17 +61,17 @@ bool Skirnir::fsmGlobals(uint8_t next) {
 }
 
 uint8_t Skirnir::fsmLocals(uint8_t next) {
-  switch(fsm_state) {
+  switch(fsmState) {
     case PING:
       if(next == '\n') port -> write(">\n");
-      fsm_state = START;
+      fsmState = START;
       return 0;
     case PACKET_INTERMEDIATE:
-      getReceiveBuffer()[fsm_repeats] = next;
-      if(++fsm_repeats >= 60) fsm_state = PACKET_END;
+      getReceiveBuffer()[fsmRepeats] = next;
+      if(++fsmRepeats >= 60) fsmState = PACKET_END;
       return 0;
     case PACKET_END:
-      fsm_state = START;
+      fsmState = START;
       if(next == '\n') {
         decode_base64(getReceiveBuffer(), getReceiveBuffer());
         return 45;
@@ -90,7 +90,7 @@ uint8_t Skirnir::receive(uint8_t next) {
   }
 }
 
-uint8_t Skirnir::receive_until_packet() {
+uint8_t Skirnir::receiveUntilPacket() {
   uint8_t result = 0;
   
   while(port -> available()) {
