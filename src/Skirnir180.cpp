@@ -1,11 +1,9 @@
 #include "Skirnir180.hpp"
 #include "base64.hpp"
 
-Skirnir180::Skirnir180(HardwareSerial* port_) : Skirnir(port) {
-  port = port_;
-  fsmState = START;
-  receive_buffer[240] = '\0';
+Skirnir180::Skirnir180(HardwareSerial* port) : Skirnir(port) {
   receiveBuffer = getReceiveBuffer();
+  receive_buffer[240] = '\0';
 }
 
 bool Skirnir180::fsmGlobals(uint8_t next) {

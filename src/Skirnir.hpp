@@ -22,7 +22,7 @@ class Skirnir {
     };
     
     HardwareSerial* port;
-    FSMState fsmState;
+    FSMState fsmState = START;
     int fsmRepeats;
     
     /* fsmGlobals:

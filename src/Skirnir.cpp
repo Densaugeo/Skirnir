@@ -1,9 +1,7 @@
 #include "Skirnir.hpp"
 #include "base64.hpp"
 
-Skirnir::Skirnir(HardwareSerial* port_) {
-  port = port_;
-  fsmState = START;
+Skirnir::Skirnir(HardwareSerial* port): port(port) {
   receiveBuffer = getReceiveBuffer();
 }
 
