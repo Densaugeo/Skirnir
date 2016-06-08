@@ -13,20 +13,72 @@
 
 class HardwareSerial {
   public:
-    // From Arduino HardwareSerial
-    int available();
-    int read();
-    size_t write(uint8_t);
-    size_t write(const char[]);
-    
-    // Additional API for testing
-    HardwareSerial();
-    HardwareSerial(uint8_t payload[], uint32_t size); // Same as calling constructor and then .addInput()
+    uint32_t inputAvailable = 0;
+    uint32_t outputAvailable = 0;
     uint8_t inputBuffer[HARDWARESERIAL_INPUT_SIZE];
-    uint32_t inputAvailable;
     uint8_t outputBuffer[HARDWARESERIAL_OUTPUT_SIZE];
-    uint32_t outputAvailable;
-    void addInput(uint8_t payload[], uint32_t size);
+    
+    HardwareSerial() {}
+    
+    // Same as calling constructor and then .addInput()
+    HardwareSerial(uint8_t payload[], uint32_t size) {
+      addInput(payload, size);
+    }
+    
+    void addInput(uint8_t payload[], uint32_t size) {
+      uint32_t size_accepted = size < HARDWARESERIAL_INPUT_SIZE - inputAvailable ? size : HARDWARESERIAL_INPUT_SIZE - inputAvailable;
+      
+      for(uint32_t i = 0; i < size_accepted; ++i) {
+        inputBuffer[inputAvailable + i] = payload[i];
+      }
+      
+      inputAvailable += size_accepted;
+    }
+    
+    // Methods below are from Arduino HardwareSerial:
+    
+    int available() {
+      return (int) inputAvailable;
+    }
+    
+    int read() {
+      if(inputAvailable == 0) {
+        return -1;
+      }
+      
+      int result = inputBuffer[0];
+      
+      --inputAvailable;
+      
+      for(uint32_t i = 0; i < inputAvailable; ++i) {
+        inputBuffer[i] = inputBuffer[i + 1];
+      }
+      
+      return result;
+    }
+    
+    size_t write(uint8_t c) {
+      if(outputAvailable < HARDWARESERIAL_OUTPUT_SIZE) {
+        outputBuffer[outputAvailable] = c;
+        ++outputAvailable;
+        
+        return 1;
+      }
+      
+      return 0;
+    }
+    
+    size_t write(const char s[]) {
+      size_t written = 0;
+      
+      while(outputAvailable < HARDWARESERIAL_OUTPUT_SIZE && s[written] != '\0') {
+        outputBuffer[outputAvailable] = (uint8_t) s[written];
+        ++outputAvailable;
+        ++written;
+      }
+      
+      return written;
+    }
 };
 
 #endif // ifndef
