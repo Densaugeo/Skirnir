@@ -97,69 +97,69 @@ TEST_CASE("Skirnir.receive()") {
   
   Skirnir skirnir = Skirnir(&port);
   
-  uint8_t payload[45];
+  uint8_t* payload = skirnir.receiveBuffer;
   
   SECTION("When nothing is detected, returns zero") {
-    REQUIRE(skirnir.receive(payload, '1') == 0);
-    REQUIRE(skirnir.receive(payload, '2') == 0);
-    REQUIRE(skirnir.receive(payload, '#') == 0);
-    REQUIRE(skirnir.receive(payload, '4') == 0);
-    REQUIRE(skirnir.receive(payload, '$') == 0);
-    REQUIRE(skirnir.receive(payload, '6') == 0);
-    REQUIRE(skirnir.receive(payload, '\n') == 0);
-    REQUIRE(skirnir.receive(payload, '8') == 0);
-    REQUIRE(skirnir.receive(payload, '9') == 0);
-    REQUIRE(skirnir.receive(payload, '0') == 0);
+    REQUIRE(skirnir.receive('1') == 0);
+    REQUIRE(skirnir.receive('2') == 0);
+    REQUIRE(skirnir.receive('#') == 0);
+    REQUIRE(skirnir.receive('4') == 0);
+    REQUIRE(skirnir.receive('$') == 0);
+    REQUIRE(skirnir.receive('6') == 0);
+    REQUIRE(skirnir.receive('\n') == 0);
+    REQUIRE(skirnir.receive('8') == 0);
+    REQUIRE(skirnir.receive('9') == 0);
+    REQUIRE(skirnir.receive('0') == 0);
   }
   
   SECTION("When a ping intermediate is detected, returns zero") {
-    REQUIRE(skirnir.receive(payload, '-') == 0);
-    REQUIRE(skirnir.receive(payload, '\n') == 0);
+    REQUIRE(skirnir.receive('-') == 0);
+    REQUIRE(skirnir.receive('\n') == 0);
     
     REQUIRE(port.outputAvailable == 2);
     REQUIRE(memcmp(port.outputBuffer, ">\n", 2) == 0);
   }
   
   SECTION("When a packet is detected, returns 45 only on the packet's final byte") {
-    REQUIRE(skirnir.receive(payload, '#') == 0);
-    REQUIRE(skirnir.receive(payload, 'S') == 0);
-    REQUIRE(skirnir.receive(payload, 'E') == 0);
-    REQUIRE(skirnir.receive(payload, '1') == 0);
+    REQUIRE(skirnir.receive('#') == 0);
+    REQUIRE(skirnir.receive('S') == 0);
+    REQUIRE(skirnir.receive('E') == 0);
+    REQUIRE(skirnir.receive('1') == 0);
     
     port.addInput((uint8_t*) "jVXJPRW1QWHFPJGlGJzdOZlRvMUhxI0h1YFtWeTZdQ15bUVlrKHpbI", 54);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
-    REQUIRE(skirnir.receive(payload, 'y') == 0);
-    REQUIRE(skirnir.receive(payload, 'R') == 0);
-    REQUIRE(skirnir.receive(payload, 'T') == 0);
-    REQUIRE(skirnir.receive(payload, '\n') == 45);
+    REQUIRE(skirnir.receive('y') == 0);
+    REQUIRE(skirnir.receive('R') == 0);
+    REQUIRE(skirnir.receive('T') == 0);
+    REQUIRE(skirnir.receive('\n') == 45);
     
     REQUIRE(port.outputAvailable == 0);
-    REQUIRE(memcmp(payload, "HMcUrOEmPXqO$iF'7NfTo1Hq#Hu`[Vy6]C^[QYk(z[#$S", 45) == 0);
+    REQUIRE(memcmp(skirnir.receiveBuffer, "HMcUrOEmPXqO$iF'7NfTo1Hq#Hu`[Vy6]C^[QYk(z[#$S", 45) == 0);
   }
   
   SECTION("When a large packet is received, do not respond") {
-    REQUIRE(skirnir.receive(payload, '&') == 0);
-    REQUIRE(skirnir.receive(payload, 'a') == 0);
-    REQUIRE(skirnir.receive(payload, 'n') == 0);
-    REQUIRE(skirnir.receive(payload, 'R') == 0);
+    REQUIRE(skirnir.receive('&') == 0);
+    REQUIRE(skirnir.receive('a') == 0);
+    REQUIRE(skirnir.receive('n') == 0);
+    REQUIRE(skirnir.receive('R') == 0);
     
     port.addInput((uint8_t*) "BeHooXVR7RG9tMltjdTdIM3JQLms7eDheaF0jVW1HX1khcnBvKU9Dd2Ey", 57);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     port.addInput((uint8_t*) "SHFRLyV6On17cUF0Y2s6SSVmTmdUOkM4aic4P1FgbSV5Oy5ARSVOTWwjVml0", 60);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     port.addInput((uint8_t*) "P3clMkhYbFdsI2hbaCdqJiMrTmI5X1lDUFppUnwtc1tYLTlfR0pvXTQrfTwh", 60);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     port.addInput((uint8_t*) "NHxBWTxUZlN2IUsrLGc0T312Wl52WW1hbEdXUzFeaz5KTj5NbnRtQi4oW", 57);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
-    REQUIRE(skirnir.receive(payload, 'U') == 0);
-    REQUIRE(skirnir.receive(payload, 'h') == 0);
-    REQUIRE(skirnir.receive(payload, 'T') == 0);
-    REQUIRE(skirnir.receive(payload, '\n') == 0);
+    REQUIRE(skirnir.receive('U') == 0);
+    REQUIRE(skirnir.receive('h') == 0);
+    REQUIRE(skirnir.receive('T') == 0);
+    REQUIRE(skirnir.receive('\n') == 0);
     
     REQUIRE(port.outputAvailable == 0);
   }
@@ -170,10 +170,8 @@ TEST_CASE("Skirnir.receive_until_packet()") {
   
   Skirnir skirnir = Skirnir(&port);
   
-  uint8_t payload[45];
-  
   SECTION("When port is empty, no response is sent") {
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     REQUIRE(port.inputAvailable == 0);
     REQUIRE(port.outputAvailable == 0);
@@ -181,7 +179,7 @@ TEST_CASE("Skirnir.receive_until_packet()") {
   
   SECTION("When port is full of garbage, no response is sent") {
     port.addInput((uint8_t*) "7DZ<h1#K2EMRQ?QylX5E$txjT>YCLx^R1i3IB;z$w):9X~Z+xj8a3U_i)zt-zrcO", 64);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     REQUIRE(port.inputAvailable == 0);
     REQUIRE(port.outputAvailable == 0);
@@ -189,7 +187,7 @@ TEST_CASE("Skirnir.receive_until_packet()") {
   
   SECTION("When port contains a ping intermediate, a ping response is sent") {
     port.addInput((uint8_t*) "l++j}pjjN~T.-^kf<P3JFIzPGNBz^mDYy?D-\nXX*:}33+E]AEIp)eyNVuz(U][4G", 64);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     REQUIRE(port.inputAvailable == 0);
     REQUIRE(port.outputAvailable == 2);
@@ -198,7 +196,7 @@ TEST_CASE("Skirnir.receive_until_packet()") {
   
   SECTION("When port contains multiple ping intermediates, multiple ping responses are sent") {
     port.addInput((uint8_t*) "WO>>/s-\n`R4#_CI>@:57T!MI4a_Nhy-\n~`l,Kkb=67uB##0{-\nM`9Pv8(/l4c>hI", 64);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     REQUIRE(port.inputAvailable == 0);
     REQUIRE(port.outputAvailable == 6);
@@ -207,10 +205,10 @@ TEST_CASE("Skirnir.receive_until_packet()") {
   
   SECTION("Ping intermediates divided across calls can be detected") {
     port.addInput((uint8_t*) "tmH#@eG-", 8);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     port.addInput((uint8_t*) "\nX=Fhc+;'kM1", 12);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     REQUIRE(port.inputAvailable == 0);
     REQUIRE(port.outputAvailable == 2);
@@ -219,51 +217,51 @@ TEST_CASE("Skirnir.receive_until_packet()") {
   
   SECTION("When port holds a packet, it is received") {
     port.addInput((uint8_t*) "#MTE5PDNAZkp5IytreHlfR1ZmZzhtLD4hdT1GODw1RTtuZ1VDWXxTO1lfaXQy\n", 62);
-    REQUIRE(skirnir.receive_until_packet(payload) == 45);
+    REQUIRE(skirnir.receive_until_packet() == 45);
     
     REQUIRE(port.inputAvailable == 0);
     REQUIRE(port.outputAvailable == 0);
-    REQUIRE(memcmp(payload, "119<3@fJy#+kxy_GVfg8m,>!u=F8<5E;ngUCY|S;Y_it2", 45) == 0);
+    REQUIRE(memcmp(skirnir.receiveBuffer, "119<3@fJy#+kxy_GVfg8m,>!u=F8<5E;ngUCY|S;Y_it2", 45) == 0);
   }
   
   SECTION("When a packet is detected, stop immediately") {
     port.addInput((uint8_t*) "#KyxwWkg8eFIyYyRCQ3JPOyhvRTI/IzUkI20mQXRpZiMzPGF5W2h9SVB0cTEu\nab", 64);
-    REQUIRE(skirnir.receive_until_packet(payload) == 45);
+    REQUIRE(skirnir.receive_until_packet() == 45);
     
     REQUIRE(port.inputAvailable == 2);
     REQUIRE(memcmp(port.inputBuffer, "ab", 2) == 0);
     REQUIRE(port.outputAvailable == 0);
-    REQUIRE(memcmp(payload, "+,pZH<xR2c$BCrO;(oE2?#5$#m&Atif#3<ay[h}IPtq1.", 45) == 0);
+    REQUIRE(memcmp(skirnir.receiveBuffer, "+,pZH<xR2c$BCrO;(oE2?#5$#m&Atif#3<ay[h}IPtq1.", 45) == 0);
   }
   
   SECTION("Packets divided across calls can be detected") {
     port.addInput((uint8_t*) "#aiYwO1MnI2htJyZZPGB4RnQreUR3", 29);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     port.addInput((uint8_t*) "YicoYUlBNig5X09xW09DIyYmfkBNR3h+\n", 33);
-    REQUIRE(skirnir.receive_until_packet(payload) == 45);
+    REQUIRE(skirnir.receive_until_packet() == 45);
     
     REQUIRE(port.inputAvailable == 0);
     REQUIRE(port.outputAvailable == 0);
-    REQUIRE(memcmp(payload, "j&0;S'#hm'&Y<`xFt+yDwb'(aIA6(9_Oq[OC#&&~@MGx~", 45) == 0);
+    REQUIRE(memcmp(skirnir.receiveBuffer, "j&0;S'#hm'&Y<`xFt+yDwb'(aIA6(9_Oq[OC#&&~@MGx~", 45) == 0);
   }
   
   SECTION("Packets in a stream of random bytes can be detected") {
     port.addInput((uint8_t*) "3@fJy#tmH#@+kxeG.AX=Fhc+;'kM119<#LFVNMTdPMy48cUJWJ3o/L1RAIWJXMGF", 64);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     port.addInput((uint8_t*) "yOTZqdDx0Jl8kbmFYSCxWYE82QzAh\ny_GVfg8m,>!u=F8<5E;ngUCY|S;Y_it22w", 64);
-    REQUIRE(skirnir.receive_until_packet(payload) == 45);
+    REQUIRE(skirnir.receive_until_packet() == 45);
     
     REQUIRE(port.inputAvailable == 34);
     REQUIRE(memcmp(port.inputBuffer, "y_GVfg8m,>!u=F8<5E;ngUCY|S;Y_it22w", 34) == 0);
     REQUIRE(port.outputAvailable == 0);
-    REQUIRE(memcmp(payload, ",UM17O3.<qBV'z?/T@!bW0ar96jt<t&_$naXH,V`O6C0!", 45) == 0);
+    REQUIRE(memcmp(skirnir.receiveBuffer, ",UM17O3.<qBV'z?/T@!bW0ar96jt<t&_$naXH,V`O6C0!", 45) == 0);
   }
   
   SECTION("If a ping intermediate is found inside a packet, only the packet is ignored") {
     port.addInput((uint8_t*) "#YXx9dHMqXSsjeCNsZkppdns/T0tRKlA7eDtqJk-\nFvd35rUmVSe2skMXN6JHJI\n", 64);
-    REQUIRE(skirnir.receive_until_packet(payload) == 0);
+    REQUIRE(skirnir.receive_until_packet() == 0);
     
     REQUIRE(port.inputAvailable == 0);
     REQUIRE(port.outputAvailable == 2);
@@ -272,11 +270,11 @@ TEST_CASE("Skirnir.receive_until_packet()") {
   
   SECTION("If a packet is found inside a ping intermediate, only the ping is ignored") {
     port.addInput((uint8_t*) "-#R3c6dmM/NlZSUS9+P3RPVCEnW3s5Z3RFbG8jSD98UjwmQUM+LWszcDhiZjBr\n\n", 64);
-    REQUIRE(skirnir.receive_until_packet(payload) == 45);
+    REQUIRE(skirnir.receive_until_packet() == 45);
     
     REQUIRE(port.inputAvailable == 1);
     REQUIRE(memcmp(port.inputBuffer, "\n", 1) == 0);
     REQUIRE(port.outputAvailable == 0);
-    REQUIRE(memcmp(payload, "Gw:vc?6VRQ/~?tOT!'[{9gtElo#H?|R<&AC>-k3p8bf0k", 45) == 0);
+    REQUIRE(memcmp(skirnir.receiveBuffer, "Gw:vc?6VRQ/~?tOT!'[{9gtElo#H?|R<&AC>-k3p8bf0k", 45) == 0);
   }
 }

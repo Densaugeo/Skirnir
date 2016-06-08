@@ -2,7 +2,6 @@
 
 #include "Skirnir180.hpp"
 
-unsigned char packet_decoded[180];
 uint16_t last_ping = 0;
 
 Skirnir a_skirnir = Skirnir(&Serial);
@@ -20,13 +19,13 @@ void loop() {
   }
 
   // Returns true if a valid packet is found
-  switch(a_skirnir.receive_until_packet(packet_decoded)) {
+  switch(a_skirnir.receive_until_packet()) {
     // Echo packet back to PC
     case 45:
-      a_skirnir.send(packet_decoded, 45);
+      a_skirnir.send(a_skirnir.receiveBuffer, 45);
       break;
     case 180:
-      a_skirnir.send(packet_decoded, 180);
+      a_skirnir.send(a_skirnir.receiveBuffer, 180);
       break;
   }
 }

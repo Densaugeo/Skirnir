@@ -8,6 +8,7 @@
 
 class Skirnir {
   private:
+    // Where raw packets are stored as they come in, and where finished packets are put when they are found
     uint8_t receive_buffer[61];
   
   protected:
@@ -28,27 +29,29 @@ class Skirnir {
      *   Description:
      *     First stage of FSM used by receive()
      *   Parameters:
-     *     payload - Array to store a packet, if received
      *     next - The character to receive
-     *     input_buffer - Refernce to receive_buffer. Must be passed in because child classes use different receive_buffers
      *   Returns:
      *     true if next character triggered a global transition
      */
-    bool fsmGlobals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]);
+    virtual bool fsmGlobals(uint8_t next);
     
     /* fsmLocals:
      *   Description:
      *     Second stage of FSM used by receive()
      *   Parameters:
-     *     payload - Array to store a packet, if received
      *     next - The character to receive
-     *     input_buffer - Refernce to receive_buffer. Must be passed in because child classes use different receive_buffers
      *   Returns:
      *     if a packet was completed, size in bytes (always 45). Otherwise, zero
      */
-    uint8_t fsmLocals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]);
+    virtual uint8_t fsmLocals(uint8_t next);
+    
+    // Publicly accessible pointer to the receive buffer
+    virtual uint8_t* getReceiveBuffer() { return receive_buffer; }
   
   public:
+    // Publicly accessible pointer to the receive buffer
+    uint8_t* receiveBuffer;
+    
     /* Skirnir:
      *   Description:
      *     Sends and receives 45-byte packets over an Arduino-compatible HardwareSerial port. Can send 180-byte packets,
@@ -79,24 +82,25 @@ class Skirnir {
     
     /* receive:
      *   Description:
-     *     Recieves a character. Responds to heartbeats and receives packets, if detected
+     *     Recieves a character. Responds to heartbeats and receives packets, if detected. If a packet is found,
+     *     it is parsed and left in .receiveBuffer. Received packets are overwritten by .receive() and
+     *     .receive_until_packet()
      *   Parameters:
-     *     payload - Array to store a packet, if received
      *     next - The character to receive
      *   Returns:
      *     if a packet was detected, size in bytes (always 45). Otherwise, zero
      */
-    virtual uint8_t receive(uint8_t payload[], uint8_t next);
+    uint8_t receive(uint8_t next);
     
     /* receive_until_packet:
      *   Description:
-     *     Recieves from port.read() until a packet is detected or input ends. Responds to heartbeats, if needed
-     *   Parameters:
-     *     payload - Array to store a packet, if received
+     *     Recieves from port.read() until a packet is detected or input ends. Responds to heartbeats, if detected.
+     *     If a packet is found, it is parsed and left in .receiveBuffer. Received packets are overwritten by
+     *     .receive() and .receive_until_packet()
      *   Returns:
      *     if a packet was detected, size in bytes (always 45). Otherwise, zero
      */
-    virtual uint8_t receive_until_packet(uint8_t payload[]);
+    uint8_t receive_until_packet();
 };
 
 #endif // ifndef

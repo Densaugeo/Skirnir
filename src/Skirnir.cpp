@@ -4,6 +4,7 @@
 Skirnir::Skirnir(HardwareSerial* port_) {
   port = port_;
   fsm_state = START;
+  receiveBuffer = getReceiveBuffer();
 }
 
 void Skirnir::heartbeat() {
@@ -44,7 +45,7 @@ void Skirnir::send(uint8_t payload[], uint32_t size) {
   port -> write('\n');
 }
 
-bool Skirnir::fsmGlobals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]) {
+bool Skirnir::fsmGlobals(uint8_t next) {
   switch(next) {
     case '-':
       fsm_state = PING;
@@ -52,27 +53,27 @@ bool Skirnir::fsmGlobals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]
     case '#':
       fsm_state = PACKET_INTERMEDIATE;
       fsm_repeats = 0;
-      input_buffer[60] = '\0';
+      getReceiveBuffer()[60] = '\0';
       return true;
     default:
       return false;
   }
 }
 
-uint8_t Skirnir::fsmLocals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]) {
+uint8_t Skirnir::fsmLocals(uint8_t next) {
   switch(fsm_state) {
     case PING:
       if(next == '\n') port -> write(">\n");
       fsm_state = START;
       return 0;
     case PACKET_INTERMEDIATE:
-      input_buffer[fsm_repeats] = next;
+      getReceiveBuffer()[fsm_repeats] = next;
       if(++fsm_repeats >= 60) fsm_state = PACKET_END;
       return 0;
     case PACKET_END:
       fsm_state = START;
       if(next == '\n') {
-        decode_base64(input_buffer, payload);
+        decode_base64(getReceiveBuffer(), getReceiveBuffer());
         return 45;
       }
       return 0;
@@ -81,18 +82,22 @@ uint8_t Skirnir::fsmLocals(uint8_t payload[], uint8_t next, uint8_t input_buffer
   }
 }
 
-uint8_t Skirnir::receive(uint8_t payload[], uint8_t next) {
-  if(fsmGlobals(payload, next, receive_buffer)) {
+uint8_t Skirnir::receive(uint8_t next) {
+  if(fsmGlobals(next)) {
     return 0;
   } else {
-    return fsmLocals(payload, next, receive_buffer);
+    return fsmLocals(next);
   }
 }
 
-uint8_t Skirnir::receive_until_packet(uint8_t payload[]) {
+uint8_t Skirnir::receive_until_packet() {
+  uint8_t result = 0;
+  
   while(port -> available()) {
-    if(receive(payload, port -> read())) {
-      return 45;
+    result = receive(port -> read());
+    
+    if(result) {
+      return result;
     }
   }
   
