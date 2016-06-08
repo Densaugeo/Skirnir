@@ -67,22 +67,6 @@ class Skirnir {
      */
     void heartbeat();
     
-    /* send45:
-     *   Description:
-     *     Sends a fixed-size 45-byte packet
-     *   Parameters:
-     *     payload - Bytes to send. The 45 bytes after this pointer are sent
-     */
-    void send45(uint8_t payload[]);
-    
-    /* send180:
-     *   Description:
-     *     Sends a fixed-size 180-byte packet
-     *   Parameters:
-     *     payload - Bytes to send. The 180 bytes after this pointer are sent
-     */
-    void send180(uint8_t payload[]);
-    
     /* send:
      *   Description:
      *     Sends a packet, with a payload of up to 180 bytes

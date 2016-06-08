@@ -10,28 +10,6 @@ void Skirnir::heartbeat() {
   port -> write("<\n");
 }
 
-void Skirnir::send45(uint8_t payload[]) {
-  uint8_t send_buffer[63];
-  
-  send_buffer[0] = '#';
-  encode_base64(payload, 45, send_buffer + 1);
-  send_buffer[61] = '\n';
-  send_buffer[62] = '\0';
-  
-  port -> write((char*) send_buffer);
-}
-
-void Skirnir::send180(uint8_t payload[]) {
-  uint8_t send_buffer[243];
-  
-  send_buffer[0] = '&';
-  encode_base64(payload, 180, send_buffer + 1);
-  send_buffer[241] = '\n';
-  send_buffer[242] = '\0';
-  
-  port -> write((char*) send_buffer);
-}
-
 void Skirnir::send(uint8_t payload[], uint32_t size) {
   uint8_t payload_size = size < 180 ? size : 180;
   uint8_t packet_size = size <= 45 ? 60 : 240;

@@ -16,44 +16,38 @@ TEST_CASE("Skirnir.heartbeat()") {
   }
 }
 
-TEST_CASE("Skirnir.send45()") {
+TEST_CASE("Skirnir.send()") {
   HardwareSerial port = HardwareSerial();
   
   Skirnir skirnir = Skirnir(&port);
   
   SECTION("Sends correct packets (1)") {
-    skirnir.send45((uint8_t*) "X*8MM377oca8=Mf)R5n*Ax0iOk!^N~9'[SU+mn$6mFj9z");
+    skirnir.send((uint8_t*) "X*8MM377oca8=Mf)R5n*Ax0iOk!^N~9'[SU+mn$6mFj9z", 45);
     
     REQUIRE(port.outputAvailable == 62);
     REQUIRE(memcmp(port.outputBuffer, "#WCo4TU0zNzdvY2E4PU1mKVI1bipBeDBpT2shXk5+OSdbU1UrbW4kNm1Gajl6\n", 62) == 0);
   }
   
   SECTION("Sends correct packets (2)") {
-    skirnir.send45((uint8_t*) "G6]z5J+bF~g:r'C}@IvNB2pi/+TL*JirzQ.h`-eqgo/8G");
+    skirnir.send((uint8_t*) "G6]z5J+bF~g:r'C}@IvNB2pi/+TL*JirzQ.h`-eqgo/8G", 45);
     
     REQUIRE(port.outputAvailable == 62);
     REQUIRE(memcmp(port.outputBuffer, "#RzZdejVKK2JGfmc6cidDfUBJdk5CMnBpLytUTCpKaXJ6US5oYC1lcWdvLzhH\n", 62) == 0);
   }
   
   SECTION("Sends correct packets (3)") {
-    skirnir.send45((uint8_t*) "7tKAZUeZ*oa;</p|V,'TL|S2lKMW|9y2792bH:mK=L.8Q");
+    skirnir.send((uint8_t*) "7tKAZUeZ*oa;</p|V,'TL|S2lKMW|9y2792bH:mK=L.8Q", 45);
     
     REQUIRE(port.outputAvailable == 62);
     REQUIRE(memcmp(port.outputBuffer, "#N3RLQVpVZVoqb2E7PC9wfFYsJ1RMfFMybEtNV3w5eTI3OTJiSDptSz1MLjhR\n", 62) == 0);
   }
   
   SECTION("Sends correct packets (4)") {
-    skirnir.send45((uint8_t*) "a8ufVEic):k^O$*NA$R']0<0fU/S^5(8!?v=Zf{/:c-oV");
+    skirnir.send((uint8_t*) "a8ufVEic):k^O$*NA$R']0<0fU/S^5(8!?v=Zf{/:c-oV", 45);
     
     REQUIRE(port.outputAvailable == 62);
     REQUIRE(memcmp(port.outputBuffer, "#YTh1ZlZFaWMpOmteTyQqTkEkUiddMDwwZlUvU141KDghP3Y9WmZ7LzpjLW9W\n", 62) == 0);
   }
-}
-
-TEST_CASE("Skirnir.send()") {
-  HardwareSerial port = HardwareSerial();
-  
-  Skirnir skirnir = Skirnir(&port);
   
   SECTION("Sending no data sends a packet full of zeroes") {
     skirnir.send((uint8_t*) "", 0);
