@@ -33,35 +33,37 @@ void Skirnir::send180(uint8_t payload[]) {
 }
 
 void Skirnir::send(uint8_t payload[], uint32_t size) {
-  if(size < 45) {
-    uint8_t padded_payload[45];
-    
-    for(uint8_t i = 0; i < size; ++i) {
-      padded_payload[i] = payload[i];
-    }
-    
-    for(uint8_t i = size; i < 45; ++i) {
-      padded_payload[i] = 0;
-    }
-    
-    send45(padded_payload);
-  } else if(size == 45) {
-    send45(payload);
-  } else if(size < 180) {
-    uint8_t padded_payload[180];
-    
-    for(uint8_t i = 0; i < size; ++i) {
-      padded_payload[i] = payload[i];
-    }
-    
-    for(uint8_t i = size; i < 180; ++i) {
-      padded_payload[i] = 0;
-    }
-    
-    send180(padded_payload);
-  } else {
-    send180(payload);
+  uint8_t payload_size = size < 180 ? size : 180;
+  uint8_t packet_size = size <= 45 ? 60 : 240;
+  
+  uint8_t send_buffer[5];
+  send_buffer[4] = '\0';
+  
+  // Skirnir packet prefix
+  port -> write(size <= 45 ? '#' : '&');
+  
+  // Base64-encode payload in blocks of 3
+  for(uint8_t i = 0; i < payload_size - 2; i += 3) {
+    encode_base64(payload + i, 3, send_buffer);
+    port -> write((char*) send_buffer);
   }
+  
+  // Check for a partial block at end of payload
+  if(payload_size % 3 != 0) {
+    send_buffer[1] = payload[payload_size/3*3];
+    send_buffer[2] = payload_size % 3 == 2 ? payload[payload_size/3*3 + 1] : 0;
+    send_buffer[3] = 0;
+    
+    encode_base64(send_buffer + 1, 3, send_buffer);
+    port -> write((char*) send_buffer);
+  }
+  
+  // Fill remaineder of packet with base64 zeros ('A' characters)
+  for(uint8_t i = (payload_size + 2)/3*4; i < packet_size; ++i) {
+    port -> write('A');
+  }
+  
+  port -> write('\n');
 }
 
 bool Skirnir::fsmGlobals(uint8_t payload[], uint8_t next, uint8_t input_buffer[]) {
