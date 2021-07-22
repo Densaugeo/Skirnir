@@ -3,7 +3,7 @@
 Link Arduino to Nodejs, reliably. Can automatically connect to devices in a given folder and detect new devices. Linux-only, since it manages serial settings through stty.
 
 [![License: LGPL](https://img.shields.io/badge/license-LGPL-blue.svg)](http://www.gnu.org/licenses/lgpl-3.0.en.html)
-[![Build Status](https://travis-ci.org/Densaugeo/Skirnir.svg?branch=master)](https://travis-ci.org/Densaugeo/Skirnir)
+[![Build Status](https://travis-ci.com/Densaugeo/Skirnir.svg?branch=master)](https://travis-ci.com/github/Densaugeo/Skirnir)
 
 ## Installation
 
